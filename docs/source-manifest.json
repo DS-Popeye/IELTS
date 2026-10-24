@@ -1,0 +1,66 @@
+{
+    "reviewed_on":  "2026-10-25",
+    "description":  "All 10 original files preserved byte-for-byte. index.html remains empty. New documentation and placeholders are not original inputs.",
+    "files":  [
+                  {
+                      "original_path":  "01_SRS.md",
+                      "current_path":  "docs/specifications/01_SRS.md",
+                      "bytes":  19433,
+                      "sha256":  "160adb44f91d53633bc80de549c8c25fafbadd0a95cdf0d7f1f3d491eed4807f"
+                  },
+                  {
+                      "original_path":  "02_AI_Architecture.md",
+                      "current_path":  "docs/specifications/02_AI_Architecture.md",
+                      "bytes":  9836,
+                      "sha256":  "20f770a7d915799d3f9758cb6cc9b282274df27bb70c4f67bf75b7d09215e719"
+                  },
+                  {
+                      "original_path":  "03_Database_Design.md",
+                      "current_path":  "docs/specifications/03_Database_Design.md",
+                      "bytes":  9514,
+                      "sha256":  "1e694134a98ba70b8d64ebf808105f5689f0c3949b62c7010502b483c7f7e751"
+                  },
+                  {
+                      "original_path":  "04_Evaluation_Protocol.md",
+                      "current_path":  "docs/specifications/04_Evaluation_Protocol.md",
+                      "bytes":  8751,
+                      "sha256":  "340ce252e293ad46f846b314683c9a9e876db765316cff1d9c141535ea119f3c"
+                  },
+                  {
+                      "original_path":  "05_Development_Roadmap.md",
+                      "current_path":  "docs/specifications/05_Development_Roadmap.md",
+                      "bytes":  10957,
+                      "sha256":  "89596a97f624c294db0ae0d8b431e3f8aa67a230ad2a59ef7b4513bbd2f10903"
+                  },
+                  {
+                      "original_path":  "IELTS_Academic_Final_SRS_and_Roadmap.docx",
+                      "current_path":  "docs/compiled/IELTS_Academic_Final_SRS_and_Roadmap.docx",
+                      "bytes":  39489,
+                      "sha256":  "6a76417e07eaa4ab043c351d0527783dbbc7dd4e4aca19fecb93198124e0f5ba"
+                  },
+                  {
+                      "original_path":  "IELTS_Academic_Final_SRS_and_Roadmap.pdf",
+                      "current_path":  "docs/compiled/IELTS_Academic_Final_SRS_and_Roadmap.pdf",
+                      "bytes":  439571,
+                      "sha256":  "d599a8df2f90249d4da3a9791550e15b94e5da0f8a15b776f7c3b8c96129d7ef"
+                  },
+                  {
+                      "original_path":  "IELTS_Complete_Specification.md",
+                      "current_path":  "docs/compiled/IELTS_Complete_Specification.md",
+                      "bytes":  58491,
+                      "sha256":  "38dc531f18d13f8bb6d90695cc7b28c40d6c9c076bde58da3bb20db2cb77457c"
+                  },
+                  {
+                      "original_path":  "index.html",
+                      "current_path":  "index.html",
+                      "bytes":  0,
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  {
+                      "original_path":  "README.md",
+                      "current_path":  "docs/specifications/README.md",
+                      "bytes":  1038,
+                      "sha256":  "9483880ea2b53391ec6b4e5aad713a36da7482c681f40c60e430bd7a8acaaaa4"
+                  }
+              ]
+}
