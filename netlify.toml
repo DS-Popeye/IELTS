@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Netlify automatically supplies its current OpenNext adapter.
+# Configure environment variables in Netlify, never put credentials here.
+# Do not add an SPA /* -> /index.html redirect: this is a server-rendered app.

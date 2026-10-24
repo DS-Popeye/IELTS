@@ -1,0 +1,39 @@
+# Dependencies and framework output
+node_modules/
+.next/
+out/
+dist/
+.netlify/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets: only the placeholder example is tracked
+.env*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+.npmrc
+
+# Local tools and test artifacts
+.DS_Store
+Thumbs.db
+*.log
+playwright-report/
+test-results/
+artifacts/
+supabase/.temp/
+supabase/.branches/
+
+# Future private datasets/models must never enter the website repository
+datasets/
+checkpoints/
+private-data/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
