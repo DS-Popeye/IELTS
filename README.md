@@ -14,13 +14,13 @@ This workspace contains the reviewed requirements for a private IELTS Academic p
 
 The five numbered Markdown documents are the working baseline. Keep future requirement changes in these sources and regenerate the compiled copies when appropriate.
 
-| Document | Contents |
-| --- | --- |
-| [01 SRS](docs/specifications/01_SRS.md) | Product scope, roles, modules, requirements and acceptance scenarios |
-| [02 AI Architecture](docs/specifications/02_AI_Architecture.md) | Typed/paper Writing, QR uploads, OCR, evaluation and local worker |
-| [03 Database Design](docs/specifications/03_Database_Design.md) | Proposed entities, ownership, private storage and access policies |
-| [04 Evaluation Protocol](docs/specifications/04_Evaluation_Protocol.md) | Model measurements, integration tests, security and release gates |
-| [05 Development Roadmap](docs/specifications/05_Development_Roadmap.md) | Eight implementation phases, dependencies and delivery checks |
+| Document                                                                | Contents                                                             |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [01 SRS](docs/specifications/01_SRS.md)                                 | Product scope, roles, modules, requirements and acceptance scenarios |
+| [02 AI Architecture](docs/specifications/02_AI_Architecture.md)         | Typed/paper Writing, QR uploads, OCR, evaluation and local worker    |
+| [03 Database Design](docs/specifications/03_Database_Design.md)         | Proposed entities, ownership, private storage and access policies    |
+| [04 Evaluation Protocol](docs/specifications/04_Evaluation_Protocol.md) | Model measurements, integration tests, security and release gates    |
+| [05 Development Roadmap](docs/specifications/05_Development_Roadmap.md) | Eight implementation phases, dependencies and delivery checks        |
 
 The [original package README](docs/specifications/README.md) is preserved unchanged. Its descriptions of files at the package root refer to the original layout.
 
@@ -35,22 +35,22 @@ These contain the same substantive requirements as the five source documents, ra
 ## Current folder structure
 
 ```text
-IELTS/
-  README.md                         Project entry point
-  index.html                        Original empty placeholder
-  docs/
-    project-review.md               Findings, dependencies and future layout
-    source-manifest.json            All 10 originals and preservation checksums
-    specifications/                 Five numbered documents + original README
-    compiled/                       Combined Markdown, Word and PDF
-  resources/
-    README.md                       Guide to supplying actual resources
-    brand/                          Reserved; no branding supplied
-    content/
-      reading/                      Reserved; no practice content supplied
-      listening/                    Reserved; no audio or transcripts supplied
-      writing/                      Reserved; no prompts or chart assets supplied
-      speaking/                     Reserved; no cue cards supplied
+F:\IELTS\
+├── README.md                         Project entry point
+├── index.html                        Original empty placeholder
+├── docs\
+│   ├── project-review.md               Findings, dependencies and future layout
+│   ├── source-manifest.json            All 10 originals and preservation checksums
+│   ├── specifications\                 Five numbered documents + original README
+│   └── compiled\                       Combined Markdown, Word and PDF
+└── resources\
+    ├── README.md                       Guide to supplying actual resources
+    ├── brand\                          Reserved; no branding supplied
+    └── content\
+        ├── reading\                      Reserved; no practice content supplied
+        ├── listening\                    Reserved; no audio or transcripts supplied
+        ├── writing\                      Reserved; no prompts or chart assets supplied
+        └── speaking\                     Reserved; no cue cards supplied
 ```
 
 Resource directories contain only `.gitkeep` placeholders. They are source intake locations, not public website assets or a secure vault for user submissions.
