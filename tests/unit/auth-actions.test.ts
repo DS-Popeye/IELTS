@@ -123,6 +123,13 @@ describe("server authentication boundaries", () => {
     expect(mocks.signOut).toHaveBeenCalledWith({ scope: "global" });
   });
 
+  it("signs out the current device, revalidates the workspace, and redirects after success", async () => {
+    await expect(logoutAction()).rejects.toThrow("REDIRECT:/login?notice=signed-out");
+    expect(mocks.rpc).toHaveBeenCalledWith("record_security_event", { event_name: "logout" });
+    expect(mocks.signOut).toHaveBeenCalledWith({ scope: "local" });
+    expect(mocks.revalidate).toHaveBeenCalledWith("/", "layout");
+  });
+
   it("does not report a successful sign-out when the provider reports failure", async () => {
     mocks.signOut.mockResolvedValue({ error: { message: "network unavailable" } });
     await expect(logoutAction()).rejects.toThrow("REDIRECT:/login?notice=signout-error");
