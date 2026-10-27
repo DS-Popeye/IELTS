@@ -101,7 +101,7 @@ export const learningModules: LearningModule[] = [
 ];
 
 export function getLearningModule(slug: ModuleSlug): LearningModule {
-  const module = learningModules.find((item) => item.slug === slug);
-  if (!module) throw new Error(`Unknown learning module: ${slug}`);
-  return module;
+  const learningModule = learningModules.find((item) => item.slug === slug);
+  if (!learningModule) throw new Error(`Unknown learning module: ${slug}`);
+  return learningModule;
 }

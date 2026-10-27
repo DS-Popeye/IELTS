@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getAuthConfiguration, isPublicSupabaseKey, validatedOrigin } from "../../src/lib/env";
+import { authCookieOptions, getAuthConfiguration, isPublicSupabaseKey, validatedOrigin } from "../../src/lib/env";
 import { profileSchema, passwordChangeSchema, safeReturnPath } from "../../src/lib/auth/validation";
 
 describe("safe authentication redirects", () => {
@@ -32,6 +32,10 @@ describe("authentication configuration fails closed", () => {
   });
   it.each(["https://user:password@example.com", "https://example.com/path", "https://example.com?redirect=evil", "https://example.com#hash", "http://example.com", "javascript:alert(1)"])("rejects unsafe origin %s", (url) => expect(validatedOrigin(url)).toBeNull());
   it("supports local development origins", () => expect(validatedOrigin("http://localhost:3000")).toBe("http://localhost:3000"));
+  it("uses secure cookies on deployed HTTPS origins while allowing local HTTP", () => {
+    expect(authCookieOptions("https://aster.example")).toMatchObject({ secure: true, sameSite: "lax", path: "/" });
+    expect(authCookieOptions("http://localhost:3000").secure).toBe(false);
+  });
 });
 
 describe("profile and password validation", () => {
@@ -41,6 +45,7 @@ describe("profile and password validation", () => {
   });
   it("rejects impossible dates, invalid time zones and invalid half-band goals", () => {
     expect(profileSchema.safeParse({ ...profile, exam_date: "2026-02-30" }).success).toBe(false);
+    expect(profileSchema.safeParse({ ...profile, exam_date: "0000-01-01" }).success).toBe(false);
     expect(profileSchema.safeParse({ ...profile, timezone: "Not/AZone" }).success).toBe(false);
     expect(profileSchema.safeParse({ ...profile, target_overall: "7.3" }).success).toBe(false);
     expect(profileSchema.safeParse({ ...profile, study_goal_minutes: "10000" }).success).toBe(false);

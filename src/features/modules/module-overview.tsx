@@ -6,27 +6,27 @@ import "./modules.css";
 const icons = { reading: BookOpen, listening: Headphones, writing: PenLine, speaking: Mic };
 
 export function ModuleOverview({ slug }: { slug: ModuleSlug }) {
-  const module = getLearningModule(slug);
+  const learningModule = getLearningModule(slug);
   const Icon = icons[slug];
 
   return (
     <div className="module-overview">
       <div className="page-heading">
         <div>
-          <p className="eyebrow">Your learning space / {module.eyebrow}</p>
-          <h1>{module.eyebrow.replace("Academic ", "")}</h1>
+          <p className="eyebrow">Your learning space / {learningModule.eyebrow}</p>
+          <h1>{learningModule.eyebrow.replace("Academic ", "")}</h1>
           <p className="muted">One skill. A little more confidence, every day.</p>
         </div>
         <span className="tag tag-muted">Foundation preview</span>
       </div>
 
-      <section className={`module-detail-hero module-tone-${module.color}`} aria-labelledby="module-title">
+      <section className={`module-detail-hero module-tone-${learningModule.color}`} aria-labelledby="module-title">
         <div className="module-detail-content">
           <span className="module-symbol"><Icon size={28} strokeWidth={1.6} aria-hidden="true" /></span>
-          <p className="eyebrow">{module.eyebrow}</p>
-          <h2 id="module-title">{module.title}</h2>
-          <p>{module.description}</p>
-          <span className="module-release"><span aria-hidden="true" /> Coming in Phase {module.phase}</span>
+          <p className="eyebrow">{learningModule.eyebrow}</p>
+          <h2 id="module-title">{learningModule.title}</h2>
+          <p>{learningModule.description}</p>
+          <span className="module-release"><span aria-hidden="true" /> Coming in Phase {learningModule.phase}</span>
         </div>
         <div className="module-decor" aria-hidden="true">
           <div className="module-decor-ring" />
@@ -36,7 +36,7 @@ export function ModuleOverview({ slug }: { slug: ModuleSlug }) {
       </section>
 
       <dl className="module-facts" aria-label="Planned mock format">
-        {module.facts.map((fact) => (
+        {learningModule.facts.map((fact) => (
           <div className="module-fact" key={fact.label}>
             <dt>{fact.label}</dt>
             <dd>{fact.value}</dd>
@@ -48,7 +48,7 @@ export function ModuleOverview({ slug }: { slug: ModuleSlug }) {
         <section className="panel" aria-labelledby="module-focus">
           <div className="panel-header"><h2 id="module-focus">A look at what’s ahead</h2><span className="tag tag-muted">Planned</span></div>
           <ul className="module-focus-list">
-            {module.focus.map((item, index) => (
+            {learningModule.focus.map((item, index) => (
               <li key={item.title}>
                 <span className="module-focus-number">0{index + 1}</span>
                 <div><h3>{item.title}</h3><p>{item.description}</p></div>
@@ -68,7 +68,7 @@ export function ModuleOverview({ slug }: { slug: ModuleSlug }) {
 
       <div className="roadmap-note module-availability" role="note">
         <CircleCheck size={18} aria-hidden="true" />
-        <div><strong>{module.preparation}</strong><p>{module.note}</p></div>
+        <div><strong>{learningModule.preparation}</strong><p>{learningModule.note}</p></div>
       </div>
     </div>
   );

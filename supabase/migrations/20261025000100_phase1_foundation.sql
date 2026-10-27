@@ -168,12 +168,27 @@ create function public.audit_role_change()
 returns trigger
 language plpgsql security definer set search_path = ''
 as $$
+declare
+  changed_user_id uuid;
+  changed_role text;
+  actor uuid;
 begin
+  if tg_op = 'DELETE' then
+    changed_user_id := old.user_id;
+    changed_role := old.role;
+  else
+    changed_user_id := new.user_id;
+    changed_role := new.role;
+  end if;
+  -- An Auth account deletion may cascade here after the actor's own row has
+  -- gone. Preserve the event without reintroducing a deleted-user FK.
+  select id into actor from auth.users where id = auth.uid();
   insert into public.audit_events(actor_id, action, entity_type, entity_id, metadata_json)
     values (
-      auth.uid(), 'role_changed', 'user_role', new.user_id,
-      jsonb_build_object('source', 'database_trigger', 'role', new.role)
+      actor, 'role_changed', 'user_role', changed_user_id,
+      jsonb_build_object('source', 'database_trigger', 'operation', tg_op, 'role', changed_role)
     );
+  if tg_op = 'DELETE' then return old; end if;
   return new;
 end;
 $$;
@@ -209,7 +224,7 @@ create trigger touch_profile before update on public.profiles
   for each row execute function public.touch_profile();
 create trigger audit_profile_update after update on public.profiles
   for each row execute function public.audit_profile_update();
-create trigger audit_role_change after insert or update on public.user_roles
+create trigger audit_role_change after insert or update or delete on public.user_roles
   for each row execute function public.audit_role_change();
 create trigger audit_private_access_change after insert or update or delete on public.private_access
   for each row execute function public.audit_private_access_change();
@@ -256,13 +271,27 @@ revoke all on function public.record_security_event(text) from public, anon, aut
 grant execute on function public.record_security_event(text) to authenticated;
 
 -- Reserved storage is PRIVATE. Phase 1 has no safe upload/serving pipeline.
+-- Storage is managed by Supabase. Do not silently install policies on a
+-- project where its platform-level RLS protection has been disabled.
+do $$
+begin
+  if not exists (
+    select 1 from pg_catalog.pg_class
+    where oid = 'storage.objects'::regclass and relrowsecurity
+  ) or not exists (
+    select 1 from pg_catalog.pg_class
+    where oid = 'storage.buckets'::regclass and relrowsecurity
+  ) then
+    raise exception 'Supabase Storage RLS must be enabled before applying this migration.';
+  end if;
+end;
+$$;
+
 insert into storage.buckets(id, name, public, file_size_limit, allowed_mime_types)
 values
   ('content-private', 'content-private', false, 52428800, array['image/png','image/jpeg','image/webp','audio/mpeg','audio/wav','audio/mp4','application/pdf']),
   ('student-uploads-private', 'student-uploads-private', false, 10485760, array['image/png','image/jpeg','image/webp']),
-  ('speaking-recordings-private', 'speaking-recordings-private', false, 52428800, array['audio/webm','audio/ogg','audio/mp4','audio/wav'])
-on conflict (id) do update set public = false,
-  file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+  ('speaking-recordings-private', 'speaking-recordings-private', false, 52428800, array['audio/webm','audio/ogg','audio/mp4','audio/wav']);
 
 -- Restrictive policies also defeat an accidentally broad permissive policy.
 -- Replace through a reviewed later migration when scoped upload APIs exist.

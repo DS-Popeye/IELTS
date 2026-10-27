@@ -12,6 +12,7 @@ const notices: Record<string, string> = {
   "verify-email": "Verify your email address before signing in.",
   "auth-error": "That sign-in link could not be completed. Please try again.",
   "password-updated": "Your password was updated. Sign in with your new password.",
+  "password-updated-signout-error": "Your password was updated, but signing out could not be confirmed. Retry sign-out from your profile before leaving this device.",
   "signed-out": "You have signed out of this browser.",
   "signout-error": "Sign-out could not be confirmed. Please try again from your profile.",
 };

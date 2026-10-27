@@ -1,4 +1,12 @@
 import type { NextConfig } from "next";
+import { isPublicSupabaseKey } from "./src/lib/env";
+
+// Public variables are compiled into browser JavaScript. Reject an accidental
+// privileged key before Next can produce a deployable bundle.
+const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+if (publicKey && !isPublicSupabaseKey(publicKey)) {
+  throw new Error("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a publishable or legacy anon key. Never use a privileged secret.");
+}
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,

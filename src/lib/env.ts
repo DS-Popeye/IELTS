@@ -33,7 +33,8 @@ export function validatedOrigin(value: string | undefined): string | null {
 export function isPublicSupabaseKey(value: string | undefined): boolean {
   if (!value || value.startsWith("sb_secret_")) return false;
   if (/^sb_publishable_[A-Za-z0-9_-]+$/.test(value)) return true;
-  // Legacy anon keys are still supported; refuse service-role JWTs before bundling a client.
+  // Legacy anon keys are still supported. The Next.js configuration also checks
+  // this before a build so an accidental NEXT_PUBLIC secret cannot be bundled.
   try {
     const parts = value.split(".");
     if (parts.length !== 3) return false;
@@ -56,6 +57,13 @@ export function getAuthConfiguration(environment = publicEnvironment()) {
 
 export function getAppMode(): AppMode {
   return getAuthConfiguration().mode;
+}
+
+export function authCookieOptions(siteUrl: string) {
+  // Supabase SSR's browser client must read/write session cookies. HttpOnly
+  // would break refresh and MFA; keep the cookies same-site and HTTPS-only on
+  // deployed origins instead. Local HTTP development remains supported.
+  return { path: "/", sameSite: "lax" as const, secure: siteUrl.startsWith("https://") };
 }
 
 export function requireAuthConfiguration() {

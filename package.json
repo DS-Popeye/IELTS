@@ -2,6 +2,7 @@
   "name": "aster-ielts-academic",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Private IELTS Academic learning platform — Phase 1 foundation",
   "engines": {
     "node": ">=22.0.0 <25"
@@ -29,6 +30,7 @@
     "next-themes": "0.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "server-only": "0.0.1",
     "zod": "4.6.7"
   },
   "devDependencies": {
@@ -36,7 +38,7 @@
     "@electric-sql/pglite": "0.5.11",
     "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "26.6.5",
+    "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",

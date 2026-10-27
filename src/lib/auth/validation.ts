@@ -12,6 +12,7 @@ const nullableBand = z.union([z.literal(""), z.coerce.number().min(1).max(9).mul
 const nullableDate = z.string().refine((value) => {
   if (!value) return true;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  if (Number(value.slice(0, 4)) < 1) return false;
   const parsed = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
 }, "Enter a valid date.").transform((value) => value || null);
@@ -19,7 +20,7 @@ const nullableDate = z.string().refine((value) => {
 export const profileSchema = z.object({
   display_name: z.string().trim().max(80, "Keep your name under 80 characters."),
   country: z.string().trim().max(80).transform((value) => value || null),
-  timezone: z.string().min(1).max(100).refine((value) => {
+  timezone: z.string().min(1).max(80).refine((value) => {
     try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; } catch { return false; }
   }, "Enter a valid IANA time zone, such as Asia/Singapore."),
   language: z.enum(["en", "bn"]),

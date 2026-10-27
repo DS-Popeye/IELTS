@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function MfaForm({ initialFactorId }: { initialFactorId: string | null }) {
+  const router = useRouter();
   const [factorId, setFactorId] = useState(initialFactorId);
   const [qrCode, setQrCode] = useState("");
   const [secret, setSecret] = useState("");
@@ -55,7 +56,8 @@ export function MfaForm({ initialFactorId }: { initialFactorId: string | null })
       await supabase.rpc("record_security_event", { event_name: "mfa_verified" });
       setSecret("");
       setQrCode("");
-      window.location.assign("/admin");
+      router.replace("/admin");
+      router.refresh();
     } catch {
       setCode("");
       setMessage("That code could not be verified. Check the current code and try again.");
@@ -63,10 +65,80 @@ export function MfaForm({ initialFactorId }: { initialFactorId: string | null })
     }
   }
 
-  return <div>
-    {!factorId && <button className="button button-primary auth-submit" type="button" onClick={enroll} disabled={busy}>{busy ? "Starting setup…" : "Set up authenticator"}</button>}
-    {qrCode && <><Image src={qrCode.startsWith("data:") ? qrCode : `data:image/svg+xml;utf-8,${encodeURIComponent(qrCode)}`} alt="Scan this code with your authenticator app" width={196} height={196} unoptimized className="auth-mfa-qr" /><details><summary>Enter the setup key manually</summary><code className="auth-mfa-secret">{secret}</code><p className="muted">Keep this key private. It is only displayed during this setup.</p></details></>}
-    {factorId && <form onSubmit={verify} className="auth-form"><fieldset className="auth-fieldset" disabled={busy}><label className="field">Authenticator code<input className="input auth-mfa-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} type="text" inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" required minLength={6} maxLength={6} /></label><button className="button button-primary auth-submit" type="submit">{busy ? "Verifying…" : "Verify and continue"}</button></fieldset></form>}
-    {message && <p className="form-message form-error" role="alert">{message}</p>}
-  </div>;
+  return (
+    <div>
+      {!factorId && (
+        <button
+          className="button button-primary auth-submit"
+          type="button"
+          onClick={enroll}
+          disabled={busy}
+        >
+          {busy ? "Starting setupâ€¦" : "Set up authenticator"}
+        </button>
+      )}
+
+      {qrCode && (
+        <>
+        {/* eslint-disable-next-line @next/next/no-img-element -- Supabase MFA QR code uses a locally generated SVG data URL. */}
+          <img
+            src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+              qrCode.startsWith("data:")
+                ? qrCode.substring(qrCode.indexOf(",") + 1)
+                : qrCode
+            )}`}
+            alt="Scan this code with your authenticator app"
+            width={196}
+            height={196}
+            className="auth-mfa-qr"
+          />
+
+          <details>
+            <summary>Enter the setup key manually</summary>
+            <code className="auth-mfa-secret">{secret}</code>
+            <p className="muted">
+              Keep this key private. It is only displayed during this setup.
+            </p>
+          </details>
+        </>
+      )}
+
+      {factorId && (
+        <form onSubmit={verify} className="auth-form">
+          <fieldset className="auth-fieldset" disabled={busy}>
+            <label className="field">
+              Authenticator code
+              <input
+                className="input auth-mfa-code"
+                value={code}
+                onChange={(event) =>
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                autoComplete="one-time-code"
+                required
+                minLength={6}
+                maxLength={6}
+              />
+            </label>
+
+            <button
+              className="button button-primary auth-submit"
+              type="submit"
+            >
+              {busy ? "Verifyingâ€¦" : "Verify and continue"}
+            </button>
+          </fieldset>
+        </form>
+      )}
+
+      {message && (
+        <p className="form-message form-error" role="alert">
+          {message}
+        </p>
+      )}
+    </div>
+  );
 }

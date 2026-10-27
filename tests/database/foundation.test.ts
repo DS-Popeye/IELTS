@@ -193,6 +193,31 @@ describe("Phase 1 migration and database authorization", () => {
     }
   });
 
+  it("applies allowlist revocation immediately to an existing authenticated session", async () => {
+    await assume("bob");
+    expect(await scalar("select public.is_active_member() as value")).toBe(true);
+    await db.exec("reset role; update public.private_access set active = false where email = 'bob@example.invalid'; set role authenticated");
+    expect(await scalar("select public.is_active_member() as value")).toBe(false);
+    expect((await db.query("update public.profiles set display_name = 'revoked write' returning user_id")).rows).toHaveLength(0);
+    await db.exec("reset role; update public.private_access set active = true where email = 'bob@example.invalid'");
+  });
+
+  it("audits trusted role removal and immediately revokes membership", async () => {
+    await assume("bob");
+    await db.exec("reset role");
+    await db.query("delete from public.user_roles where user_id = $1", [ids.bob]);
+    const events = (await db.query<{ metadata_json: { operation: string }; entity_id: string }>(
+      "select metadata_json, entity_id from public.audit_events where action = 'role_changed' and metadata_json->>'operation' = 'DELETE'",
+    )).rows;
+    expect(events).toHaveLength(1);
+    expect(events[0].entity_id).toBe(ids.bob);
+    await assume("bob");
+    expect(await scalar("select public.is_active_member() as value")).toBe(false);
+    expect(await scalar("select count(*)::int as value from public.profiles")).toBe(0);
+    await db.exec("reset role");
+    await db.query("insert into public.user_roles(user_id) values ($1)", [ids.bob]);
+  });
+
   it("requires MFA for administrator audit reads", async () => {
     await assume("admin", "aal1");
     expect(await scalar("select public.has_admin_access() as value")).toBe(false);
@@ -245,7 +270,21 @@ describe("Phase 1 migration and database authorization", () => {
         .rejects.toMatchObject({ code: "42501" });
       expect((await db.query("update storage.objects set name = 'attack.png' returning id")).rows).toHaveLength(0);
       expect((await db.query("delete from storage.objects returning id")).rows).toHaveLength(0);
+      expect((await db.query("update storage.buckets set public = true returning id")).rows).toHaveLength(0);
+      expect((await db.query("delete from storage.buckets returning id")).rows).toHaveLength(0);
     }
+  });
+
+  it("allows trusted Auth account deletion while retaining non-owning audit references", async () => {
+    // Provider/operator account deletion is deliberately not a Phase 1 client action.
+    // Use the otherwise-unused synthetic revoked account to exercise FK cascades.
+    await db.query("select set_config('request.jwt.claims', $1, false)", [JSON.stringify({ sub: ids.revoked })]);
+    await db.query("delete from auth.users where id = $1", [ids.revoked]);
+    expect(await scalar(`select count(*)::int as value from public.profiles where user_id = '${ids.revoked}'`)).toBe(0);
+    expect(await scalar(`select count(*)::int as value from public.user_roles where user_id = '${ids.revoked}'`)).toBe(0);
+    expect(await scalar(`select count(*)::int as value from public.audit_events where actor_id = '${ids.revoked}'`)).toBe(0);
+    const events = (await db.query("select entity_id, actor_id from public.audit_events where entity_id = $1 and metadata_json->>'operation' = 'DELETE'", [ids.revoked])).rows;
+    expect(events).toEqual([{ entity_id: ids.revoked, actor_id: null }]);
   });
 
   it("does not expose trigger functions as callable browser operations", async () => {

@@ -96,8 +96,19 @@ select throws_ok($$select * from public.profiles$$, '42501', null, 'anonymous pr
 select throws_ok($$select public.record_security_event('login')$$, '42501', null, 'anonymous audit RPC is denied');
 
 reset role;
+select set_config('request.jwt.claims', '{}', true);
+delete from public.user_roles where user_id='30000000-0000-4000-8000-000000000002';
+select is((select count(*)::integer from public.audit_events where action='role_changed' and entity_id='30000000-0000-4000-8000-000000000002' and metadata_json->>'operation'='DELETE'), 1, 'trusted role removal is audited');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"30000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}', true);
+select is(public.is_active_member(), false, 'role removal immediately removes membership');
+reset role;
+select set_config('request.jwt.claims', '{}', true);
+insert into public.user_roles(user_id) values ('30000000-0000-4000-8000-000000000002');
+
 -- Simulate a legacy broad Storage policy to prove the restrictive guards hold.
 create policy phase1_test_broad_object on storage.objects for all to anon, authenticated using (true) with check (true);
+create policy phase1_test_broad_bucket on storage.buckets for all to anon, authenticated using (true) with check (true);
 insert into storage.objects(bucket_id,name) values ('student-uploads-private','phase1-synthetic-test.png');
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"30000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}', true);
@@ -105,6 +116,8 @@ select is((select count(*)::integer from storage.objects where bucket_id='studen
 select throws_ok($$insert into storage.objects(bucket_id,name) values ('student-uploads-private','forged.png')$$, '42501', null, 'unvalidated browser upload is blocked');
 select is((with changed as (update storage.objects set name='forged.png' where bucket_id='student-uploads-private' returning id) select count(*)::integer from changed), 0, 'private object update is blocked');
 select is((with removed as (delete from storage.objects where bucket_id='student-uploads-private' returning id) select count(*)::integer from removed), 0, 'private object deletion is blocked');
+select is((select count(*)::integer from storage.buckets where id in ('content-private','student-uploads-private','speaking-recordings-private')), 0, 'reserved bucket rows are hidden from browser roles');
+select is((with changed as (update storage.buckets set public=true where id='student-uploads-private' returning id) select count(*)::integer from changed), 0, 'browser cannot make a reserved bucket public');
 
 reset role;
 select is(has_function_privilege('authenticated','public.initialize_member_profile()','EXECUTE'), false, 'internal profile initializer is not callable by browser');

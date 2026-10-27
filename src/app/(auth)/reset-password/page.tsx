@@ -11,9 +11,9 @@ export default async function ResetPasswordPage() {
   let verifiedSession = false;
   if (config.ready) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: active } = await supabase.rpc("is_active_member");
-    verifiedSession = !!user && !!active;
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: active, error: accessError } = await supabase.rpc("is_active_member");
+    verifiedSession = !userError && !!user?.email_confirmed_at && !accessError && !!active;
   }
   return <AuthShell title="A new password. A fresh start." description="Use a unique password of at least 12 characters. Changing it signs you out so you can sign in again securely.">
     {!config.ready && <AuthSetupNotice mode={config.mode} />}

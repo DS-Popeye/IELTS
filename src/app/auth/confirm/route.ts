@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({ token_hash, type });
   if (error) return destination("/login?notice=auth-error");
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: active } = await supabase.rpc("is_active_member");
-  if (!user?.email_confirmed_at || !active) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const { data: active, error: accessError } = await supabase.rpc("is_active_member");
+  if (userError || !user?.email_confirmed_at || accessError || !active) {
     await supabase.auth.signOut();
     return destination("/auth/access-denied");
   }

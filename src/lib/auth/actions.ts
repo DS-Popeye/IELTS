@@ -73,14 +73,15 @@ export async function resetPasswordAction(_previous: AuthActionState, form: Form
   const parsed = passwordChangeSchema.safeParse({ password: formString(form, "password"), confirmation: formString(form, "confirmation") });
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0].message };
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: active } = await supabase.rpc("is_active_member");
-  if (!user || !active) return { status: "error", message: "Open a valid reset link from your email before changing your password." };
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const { data: active, error: accessError } = await supabase.rpc("is_active_member");
+  if (userError || !user?.email_confirmed_at || accessError || !active) return { status: "error", message: "Open a valid reset link from your email before changing your password." };
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { status: "error", message: "Your password could not be updated. Request a new reset link or verify your authenticator if your account uses two-step verification." };
   await supabase.rpc("record_security_event", { event_name: "password_updated" });
-  await supabase.auth.signOut({ scope: "global" });
+  const { error: signOutError } = await supabase.auth.signOut({ scope: "global" });
   revalidatePath("/", "layout");
+  if (signOutError) redirect("/login?notice=password-updated-signout-error");
   redirect("/login?notice=password-updated");
 }
 
